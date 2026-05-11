@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1c1f3a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-192.png" />
+  <meta name="apple-mobile-web-app-title" content="Combak" />
+  <meta name="description" content="Combak — Control de finanzas personales" />
+  <title>Combak</title>
+
+  <!-- CSP: solo permite scripts de fuentes conocidas -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self';
+             script-src 'self' https://cdn.jsdelivr.net https://alcdn.msauth.net https://alcdn.msftauth.net;
+             style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+             font-src https://fonts.gstatic.com;
+             img-src 'self' data: https://logo.clearbit.com;
+             connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com https://login.microsoft.com;" />
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR DESKTOP / NAV MOBILE -->
+  <nav id="sidebar">
+    <div class="nav-brand">
+      <span class="brand-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="8" fill="none" stroke="#c8a96e" stroke-width=".8" opacity=".35"/>
+          <circle cx="11" cy="11" r="8" fill="none" stroke="#c8a96e" stroke-width="1.4" stroke-dasharray="19 31" stroke-dashoffset="-4" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="4" fill="none" stroke="white" stroke-width=".6" opacity=".2"/>
+          <circle cx="11" cy="11" r="1.8" fill="white"/>
+          <circle cx="19" cy="11" r="1.3" fill="#c8a96e"/>
+        </svg>
+      </span>
+      <span class="brand-name" id="app-name">combak</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#" data-view="dashboard"    class="nav-item active"><span class="nav-icon">◉</span><span>Dashboard</span></a></li>
+      <li><a href="#" data-view="movimientos"  class="nav-item"><span class="nav-icon">↕</span><span>Movimientos</span></a></li>
+      <li><a href="#" data-view="cuentas"      class="nav-item"><span class="nav-icon">▣</span><span>Cuentas</span></a></li>
+      <li><a href="#" data-view="presupuestos" class="nav-item"><span class="nav-icon">◎</span><span>Presupuestos</span></a></li>
+      <li><a href="#" data-view="flujo"        class="nav-item"><span class="nav-icon">≋</span><span>Flujo</span></a></li>
+      <li><a href="#" data-view="inversiones"  class="nav-item"><span class="nav-icon">△</span><span>Inversiones</span></a></li>
+      <li><a href="#" data-view="programados"  class="nav-item"><span class="nav-icon">◷</span><span>Programados</span></a></li>
+      <li><a href="#" data-view="config"       class="nav-item"><span class="nav-icon">⊙</span><span>Configuración</span></a></li>
+    </ul>
+    <div class="nav-footer">
+      <span class="sync-status" id="sync-status">● Sin conexión OneDrive</span>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main id="main">
+    <header id="topbar">
+      <button id="menu-btn" aria-label="Menú">☰</button>
+      <h1 id="view-title">Dashboard</h1>
+      <button id="add-btn" aria-label="Agregar">＋</button>
+    </header>
+
+    <div id="views">
+
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="view active">
+        <div class="period-selector">
+          <button class="period-btn active" data-period="mes">Este mes</button>
+          <button class="period-btn" data-period="semana">Semana</button>
+          <button class="period-btn" data-period="anio">Año</button>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card kpi-balance">
+            <p class="kpi-label">Balance del período</p>
+            <p class="kpi-value" id="kpi-balance">$0</p>
+            <p class="kpi-sub" id="kpi-balance-sub"></p>
+          </div>
+          <div class="kpi-card kpi-ingresos">
+            <p class="kpi-label">Ingresos</p>
+            <p class="kpi-value" id="kpi-ingresos">$0</p>
+          </div>
+          <div class="kpi-card kpi-gastos">
+            <p class="kpi-label">Gastos</p>
+            <p class="kpi-value" id="kpi-gastos">$0</p>
+          </div>
+        </div>
+        <div class="section-title">Cuentas</div>
+        <div id="dash-cuentas" class="dash-cuentas"></div>
+        <div class="section-title">Presupuestos <span class="section-sub">este mes</span></div>
+        <div id="dash-presupuestos" class="dash-presupuestos"></div>
+        <div class="section-title">Gastos por categoría</div>
+        <div id="dash-categorias" class="dash-categorias"></div>
+        <div class="section-title">Últimos movimientos</div>
+        <div id="dash-ultimos" class="dash-ultimos"></div>
+      </section>
+
+      <!-- MOVIMIENTOS -->
+      <section id="view-movimientos" class="view">
+        <div class="filtros-bar">
+          <input type="text" id="buscar-mov" placeholder="Buscar..." class="search-input" />
+          <select id="filtro-tipo" class="filtro-select">
+            <option value="">Todos los tipos</option>
+            <option value="Gasto">Gasto</option>
+            <option value="Ingreso">Ingreso</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Inversión">Inversión</option>
+          </select>
+          <select id="filtro-cuenta" class="filtro-select"><option value="">Todas las cuentas</option></select>
+          <select id="filtro-cat"    class="filtro-select"><option value="">Todas las categorías</option></select>
+        </div>
+        <div id="lista-movimientos" class="lista-movimientos"></div>
+      </section>
+
+      <!-- CUENTAS -->
+      <section id="view-cuentas" class="view">
+        <div class="patrimonio-total">
+          <p class="patrimonio-label">Patrimonio total</p>
+          <p class="patrimonio-valor" id="patrimonio-total">$0</p>
+        </div>
+        <div id="lista-cuentas" class="lista-cuentas"></div>
+        <button class="btn-outline btn-full" id="btn-nueva-cuenta">+ Nueva cuenta</button>
+      </section>
+
+      <!-- PRESUPUESTOS -->
+      <section id="view-presupuestos" class="view">
+        <div class="tabs-presupuesto">
+          <button class="tab-btn active" data-tab="presupuestos-list">Presupuestos</button>
+          <button class="tab-btn" data-tab="metas-list">Metas de ahorro</button>
+        </div>
+        <div id="presupuestos-list" class="tab-content active">
+          <div id="lista-presupuestos"></div>
+          <button class="btn-outline btn-full mt-1" id="btn-nuevo-presupuesto">+ Nuevo presupuesto</button>
+        </div>
+        <div id="metas-list" class="tab-content">
+          <div id="lista-metas"></div>
+          <button class="btn-outline btn-full mt-1" id="btn-nueva-meta">+ Nueva meta</button>
+        </div>
+      </section>
+
+      <!-- FLUJO -->
+      <section id="view-flujo" class="view">
+        <div class="flujo-wrap">
+          <div class="flujo-scroll">
+            <table id="tabla-flujo" class="tabla-flujo"></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- INVERSIONES -->
+      <section id="view-inversiones" class="view">
+        <div class="tabs-presupuesto">
+          <button class="tab-btn active" data-tab="inv-list">Mis inversiones</button>
+          <button class="tab-btn" data-tab="inv-calc">Calculadora</button>
+        </div>
+        <div id="inv-list" class="tab-content active">
+          <div id="lista-inversiones"></div>
+          <button class="btn-outline btn-full mt-1" id="btn-nueva-inversion">+ Nueva inversión</button>
+        </div>
+        <div id="inv-calc" class="tab-content">
+          <div class="calc-card">
+            <h3>Calculadora de inversión</h3>
+            <div class="form-group"><label>Capital inicial (MXN)</label><input type="number" id="calc-capital" placeholder="10,000" class="input-field" /></div>
+            <div class="form-group"><label>Tasa anual (%)</label><input type="number" id="calc-tasa" placeholder="8" step="0.1" class="input-field" /></div>
+            <div class="form-group"><label>Plazo (años)</label><input type="number" id="calc-plazo" placeholder="5" class="input-field" /></div>
+            <div class="form-group"><label>Aportación mensual (MXN)</label><input type="number" id="calc-aporte" placeholder="0" class="input-field" /></div>
+            <button class="btn-primary btn-full" id="btn-calcular">Calcular</button>
+            <div id="calc-resultado" class="calc-resultado"></div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- INGRESOS PROGRAMADOS -->
+      <section id="view-programados" class="view">
+        <div class="patrimonio-total" style="background:var(--blue);margin-bottom:16px">
+          <p class="patrimonio-label">Próximos ingresos</p>
+          <p class="patrimonio-valor" id="programados-total" style="font-size:2rem">$0</p>
+        </div>
+        <div id="alertas-programados" class="alertas-programados"></div>
+        <div class="section-title">Ingresos programados</div>
+        <div id="lista-programados" class="lista-programados"></div>
+        <button class="btn-outline btn-full mt-1" id="btn-nuevo-programado">+ Nuevo ingreso programado</button>
+      </section>
+
+      <!-- CONFIGURACIÓN -->
+      <section id="view-config" class="view">
+        <div class="config-section">
+          <h3>OneDrive</h3>
+          <div id="onedrive-user-info" style="margin-bottom:12px"></div>
+          <button class="btn-primary btn-full" id="btn-sync-onedrive">Conectar OneDrive</button>
+          <button class="btn-outline btn-full mt-1" id="btn-sync-now" style="display:none">↻ Sincronizar ahora</button>
+        </div>
+        <div class="config-section">
+          <h3>General</h3>
+          <div class="form-group"><label>Nombre de la app</label><input type="text" id="config-nombre" class="input-field" placeholder="Combak" /></div>
+          <div class="form-group">
+            <label>Divisa base</label>
+            <select id="config-divisa" class="input-field">
+              <option value="MXN">MXN — Peso mexicano</option>
+              <option value="USD">USD — Dólar</option>
+              <option value="EUR">EUR — Euro</option>
+            </select>
+          </div>
+          <button class="btn-primary" id="btn-guardar-config">Guardar</button>
+        </div>
+        <div class="config-section">
+          <h3>Categorías</h3>
+          <div id="lista-categorias-config"></div>
+          <button class="btn-outline btn-full mt-1" id="btn-nueva-categoria">+ Nueva categoría</button>
+        </div>
+        <div class="config-section">
+          <h3>Datos</h3>
+          <button class="btn-outline btn-full" id="btn-exportar">↓ Exportar CSV</button>
+          <button class="btn-danger btn-full mt-1" id="btn-limpiar">Borrar todos los datos</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- MODAL -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div id="modal" class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Nuevo movimiento</h2>
+        <button id="modal-close" class="modal-close">✕</button>
+      </div>
+      <div id="modal-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV MOBILE -->
+  <nav id="bottom-nav">
+    <a href="#" data-view="dashboard"    class="bnav-item active"><span class="bnav-icon">◉</span><span>Inicio</span></a>
+    <a href="#" data-view="movimientos"  class="bnav-item"><span class="bnav-icon">↕</span><span>Movimientos</span></a>
+    <a href="#" data-view="cuentas"      class="bnav-item"><span class="bnav-icon">▣</span><span>Cuentas</span></a>
+    <a href="#" data-view="programados"  class="bnav-item"><span class="bnav-icon">◷</span><span>Programados</span></a>
+    <a href="#" data-view="config"       class="bnav-item"><span class="bnav-icon">⊙</span><span>Config</span></a>
+  </nav>
+
+  <!-- MSAL (autenticación Microsoft) -->
+  <script src="https://alcdn.msauth.net/browser/3.7.1/js/msal-browser.min.js"
+          integrity="sha384-xxxxxx"
+          crossorigin="anonymous"
+          onerror="console.warn('MSAL CDN fallback')"></script>
+  <script src="https://alcdn.msftauth.net/browser/3.7.1/js/msal-browser.min.js"
+          onerror="console.warn('MSAL no disponible — modo offline')"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="sync.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
