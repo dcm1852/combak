@@ -12,22 +12,13 @@
   <title>Combak</title>
 
   <!-- CSP: solo permite scripts de fuentes conocidas -->
-  <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self';
-             script-src 'self' https://cdn.jsdelivr.net https://alcdn.msauth.net https://alcdn.msftauth.net;
-             style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-             font-src https://fonts.gstatic.com;
-             img-src 'self' data: https://logo.clearbit.com;
-             connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com https://login.microsoft.com;" />
-
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
-  
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-
+ <meta http-equiv="Content-Security-Policy"
+  content="default-src 'self';
+           script-src 'self' https://cdn.jsdelivr.net https://alcdn.msauth.net https://alcdn.msftauth.net 'unsafe-inline';
+           style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+           font-src https://fonts.gstatic.com;
+           img-src 'self' data: https://logo.clearbit.com;
+           connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com https://login.microsoft.com https://cdn.jsdelivr.net;" />
   <!-- SIDEBAR DESKTOP / NAV MOBILE -->
   <nav id="sidebar">
     <div class="nav-brand">
@@ -244,12 +235,11 @@
   </nav>
 
   <!-- MSAL (autenticación Microsoft) -->
-  <script src="https://alcdn.msauth.net/browser/3.7.1/js/msal-browser.min.js"
-          integrity="sha384-xxxxxx"
-          crossorigin="anonymous"
-          onerror="console.warn('MSAL CDN fallback')"></script>
-  <script src="https://alcdn.msftauth.net/browser/3.7.1/js/msal-browser.min.js"
-          onerror="console.warn('MSAL no disponible — modo offline')"></script>
+ <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"
+        crossorigin="anonymous"
+        onerror="console.warn('MSAL CDN 1 falló')"></script>
+<script src="https://alcdn.msftauth.net/browser/2.38.3/js/msal-browser.min.js"
+        onerror="console.warn('MSAL no disponible — modo offline')"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="sync.js"></script>
