@@ -72,33 +72,15 @@ async function initMSAL() {
 async function loginOneDrive() {
   if (!msalInstance) { toast('Error: MSAL no inicializado'); return; }
   try {
-    try {
-      const response = await msalInstance.loginPopup({
-        scopes: SCOPES,
-        prompt: "select_account",
-      });
-      currentAccount = response.account;
-      msalInstance.setActiveAccount(currentAccount);
-      syncEnabled = true;
-      await onLoginSuccess();
-    } catch (popupError) {
-      if (popupError.errorCode === 'popup_window_error' ||
-          popupError.errorCode === 'empty_window_error') {
-        await msalInstance.loginRedirect({ scopes: SCOPES });
-      } else {
-        throw popupError;
-      }
-    }
+    await msalInstance.loginRedirect({
+      scopes: SCOPES,
+      prompt: "select_account",
+    });
   } catch (e) {
     console.error('Error en login:', e);
-    if (e.errorCode === 'user_cancelled') {
-      toast('Login cancelado');
-    } else {
-      toast('Error al conectar con OneDrive: ' + (e.message || e.errorCode || ''));
-    }
+    toast('Error al conectar con OneDrive: ' + (e.message || e.errorCode || ''));
   }
 }
-
 // ── Logout ────────────────────────────────────────────────────
 async function logoutOneDrive() {
   if (!msalInstance || !currentAccount) return;
