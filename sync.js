@@ -9,8 +9,10 @@ const MSAL_CONFIG = {
   auth: {
     clientId:    "565d0505-b12e-45b6-a20d-52c1425f641f",
     authority:   "https://login.microsoftonline.com/consumers",
-    redirectUri: "https://dcm1852.github.io/combak/",
+    redirectUri: "https://dcm1852.github.io/combak/auth.html", // ← cambia esto
   },
+  ...
+};
   cache: {
     cacheLocation:          "sessionStorage",
     storeAuthStateInCookie: false,
