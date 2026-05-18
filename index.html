@@ -6,19 +6,26 @@
   <meta name="theme-color" content="#1c1f3a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-192.png" />
   <meta name="apple-mobile-web-app-title" content="Combak" />
   <meta name="description" content="Combak — Control de finanzas personales" />
   <title>Combak</title>
 
-  <!-- CSP: solo permite scripts de fuentes conocidas -->
- <meta http-equiv="Content-Security-Policy"
-  content="default-src 'self';
-           script-src 'self' https://cdn.jsdelivr.net https://alcdn.msauth.net https://alcdn.msftauth.net 'unsafe-inline';
-           style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-           font-src https://fonts.gstatic.com;
-           img-src 'self' data: https://logo.clearbit.com;
-           connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com https://login.microsoft.com https://cdn.jsdelivr.net;" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self';
+             script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://alcdn.msauth.net https://alcdn.msftauth.net;
+             style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+             font-src https://fonts.gstatic.com;
+             img-src 'self' data: https://logo.clearbit.com;
+             connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com https://login.microsoft.com https://cdn.jsdelivr.net;" />
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/x-icon" href="icons/favicon.ico" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
   <!-- SIDEBAR DESKTOP / NAV MOBILE -->
   <nav id="sidebar">
     <div class="nav-brand">
@@ -155,21 +162,42 @@
         <div id="inv-calc" class="tab-content">
           <div class="calc-card">
             <h3>Calculadora de inversión</h3>
-            <div class="form-group"><label>Capital inicial (MXN)</label><input type="number" id="calc-capital" placeholder="10,000" class="input-field" /></div>
-            <div class="form-group"><label>Tasa anual (%)</label><input type="number" id="calc-tasa" placeholder="8" step="0.1" class="input-field" /></div>
-            <div class="form-group"><label>Plazo (años)</label><input type="number" id="calc-plazo" placeholder="5" class="input-field" /></div>
-            <div class="form-group"><label>Aportación mensual (MXN)</label><input type="number" id="calc-aporte" placeholder="0" class="input-field" /></div>
+            <div class="form-group">
+              <label>Capital inicial (MXN)</label>
+              <input type="number" id="calc-capital" placeholder="10,000" class="input-field" />
+            </div>
+            <div class="form-group">
+              <label>Tasa anual (%)</label>
+              <input type="number" id="calc-tasa" placeholder="8" step="0.1" class="input-field" />
+            </div>
+            <div class="form-group">
+              <label>Plazo (años)</label>
+              <input type="number" id="calc-plazo" placeholder="5" class="input-field" />
+            </div>
+            <div class="form-group">
+              <label>Aportación mensual (MXN)</label>
+              <input type="number" id="calc-aporte" placeholder="0" class="input-field" />
+            </div>
+            <div class="form-group">
+              <label>Capitalización</label>
+              <select id="calc-capitalizacion" class="input-field">
+                <option value="12">Mensual (12x/año)</option>
+                <option value="4">Trimestral (4x/año)</option>
+                <option value="2">Semestral (2x/año)</option>
+                <option value="1">Anual (1x/año)</option>
+                <option value="365">Diaria (365x/año)</option>
+              </select>
+            </div>
             <button class="btn-primary btn-full" id="btn-calcular">Calcular</button>
             <div id="calc-resultado" class="calc-resultado"></div>
           </div>
         </div>
       </section>
 
-
       <!-- INGRESOS PROGRAMADOS -->
       <section id="view-programados" class="view">
         <div class="patrimonio-total" style="background:var(--blue);margin-bottom:16px">
-          <p class="patrimonio-label">Próximos ingresos</p>
+          <p class="patrimonio-label">Próximos ingresos esperados</p>
           <p class="patrimonio-valor" id="programados-total" style="font-size:2rem">$0</p>
         </div>
         <div id="alertas-programados" class="alertas-programados"></div>
@@ -188,7 +216,10 @@
         </div>
         <div class="config-section">
           <h3>General</h3>
-          <div class="form-group"><label>Nombre de la app</label><input type="text" id="config-nombre" class="input-field" placeholder="Combak" /></div>
+          <div class="form-group">
+            <label>Nombre de la app</label>
+            <input type="text" id="config-nombre" class="input-field" placeholder="Combak" />
+          </div>
           <div class="form-group">
             <label>Divisa base</label>
             <select id="config-divisa" class="input-field">
@@ -234,14 +265,13 @@
     <a href="#" data-view="config"       class="bnav-item"><span class="bnav-icon">⊙</span><span>Config</span></a>
   </nav>
 
-  <!-- MSAL (autenticación Microsoft) -->
- <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"
-        crossorigin="anonymous"
-        onerror="console.warn('MSAL CDN 1 falló')"></script>
-<script src="https://alcdn.msftauth.net/browser/2.38.3/js/msal-browser.min.js"
-        onerror="console.warn('MSAL no disponible — modo offline')"></script>
+  <!-- MSAL -->
+  <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js" crossorigin="anonymous"></script>
+  <script src="https://alcdn.msftauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
 
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
   <script src="sync.js"></script>
   <script src="app.js"></script>
 </body>
