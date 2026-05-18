@@ -71,16 +71,39 @@ async function initMSAL() {
 // ── Login ─────────────────────────────────────────────────────
 async function loginOneDrive() {
   if (!msalInstance) { toast('Error: MSAL no inicializado'); return; }
+
+  // Desregistrar service worker temporalmente para evitar que interfiera con el popup
+  if ('serviceWorker' in navigator) {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    for (const reg of regs) await reg.unregister();
+  }
+
   try {
-    await msalInstance.loginRedirect({
+    const response = await msalInstance.loginPopup({
       scopes: SCOPES,
       prompt: "select_account",
     });
+    currentAccount = response.account;
+    msalInstance.setActiveAccount(currentAccount);
+    syncEnabled = true;
+    await onLoginSuccess();
   } catch (e) {
     console.error('Error en login:', e);
-    toast('Error al conectar con OneDrive: ' + (e.message || e.errorCode || ''));
+    if (e.errorCode === 'user_cancelled') {
+      toast('Login cancelado');
+    } else if (e.errorCode === 'popup_window_error' || e.errorCode === 'empty_window_error') {
+      toast('Permite los popups para esta página en tu navegador');
+    } else {
+      toast('Error al conectar: ' + (e.message || e.errorCode || ''));
+    }
+  } finally {
+    // Re-registrar service worker después del login
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    }
   }
 }
+
 // ── Logout ────────────────────────────────────────────────────
 async function logoutOneDrive() {
   if (!msalInstance || !currentAccount) return;
