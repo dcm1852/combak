@@ -16,7 +16,13 @@
              style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
              font-src https://fonts.gstatic.com;
              img-src 'self' data: https://logo.clearbit.com;
-             connect-src 'self' https://login.microsoftonline.com https://graph.microsoft.com https://login.microsoft.com https://cdn.jsdelivr.net;" />
+             connect-src 'self'
+               https://login.microsoftonline.com
+               https://graph.microsoft.com
+               https://login.microsoft.com
+               https://cdn.jsdelivr.net
+               https://*.microsoftpersonalcontent.com
+               https://*.sharepoint.com;" />
 
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-192.png" />
@@ -266,8 +272,9 @@
   </nav>
 
   <!-- MSAL -->
-<script src="https://alcdn.msauth.net/browser/2.32.2/js/msal-browser.min.js" crossorigin="anonymous"></script>
-<script src="https://alcdn.msftauth.net/browser/2.32.2/js/msal-browser.min.js"></script>
+  <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js" crossorigin="anonymous"></script>
+  <script src="https://alcdn.msftauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
