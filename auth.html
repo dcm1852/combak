@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Combak — Auth</title>
+</head>
+<body>
+  <script src="https://alcdn.msauth.net/browser/2.32.2/js/msal-browser.min.js"></script>
+  <script>
+    // Esta página solo existe para cerrar el popup de autenticación
+    // y regresar el token a la ventana principal de Combak
+    const msalInstance = new msal.PublicClientApplication({
+      auth: {
+        clientId: "565d0505-b12e-45b6-a20d-52c1425f641f",
+        authority: "https://login.microsoftonline.com/consumers",
+        redirectUri: "https://dcm1852.github.io/combak/auth.html",
+      },
+      cache: {
+        cacheLocation: "sessionStorage",
+        storeAuthStateInCookie: false,
+      }
+    });
+    msalInstance.initialize().then(() => {
+      msalInstance.handleRedirectPromise().then(() => {
+        window.close();
+      }).catch(() => {
+        window.close();
+      });
+    });
+  </script>
+</body>
+</html>
